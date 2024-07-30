@@ -1,6 +1,6 @@
 #pragma once
 #include <rack.hpp>
-
+#include <network.hpp>
 
 using namespace rack;
 
