@@ -5,3 +5,4 @@
 /*.dll
 .DS_Store
 .vscode
+.env
