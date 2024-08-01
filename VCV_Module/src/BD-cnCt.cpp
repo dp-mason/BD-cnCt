@@ -60,19 +60,19 @@ struct BD_cnCt : Module {
 	}
 
 	void process(const ProcessArgs& args) override {
-		if (args.frame % 3000 == 0) {
+		if (args.frame % 800 == 0) {
 			
 			json_t* reqJ = json_object();
 			// json_object_set_new(reqJ, "edition", json_string(APP_EDITION.c_str()));
-			json_t* resJ = network::requestJson(network::METHOD_GET, "0.0.0.0:4554/queue.json", reqJ);
+			json_t* resJ = network::requestJson(network::METHOD_GET, "0.0.0.0:4554/chat-queue", reqJ);
 			const char *key;
 			json_t *value;
+			DEBUG("PRINTING ALL JSON FIELDS BELOW");
 			json_object_foreach(resJ, key, value) {
  				/* block of code that uses key and value */
-				char* val = json_dumps(value, JSON_ENCODE_ANY);
-				DEBUG(key);
-				DEBUG(val);
-				free(val);
+				const char* val = json_dumps(value, JSON_ENCODE_ANY);
+				DEBUG("%s", key);
+				DEBUG("%s", val);
 			}
 			json_decref(reqJ);
 			json_decref(resJ);

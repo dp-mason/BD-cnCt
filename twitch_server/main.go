@@ -47,7 +47,7 @@ func jsonServerWorker(chatUpdates chan string) {
 
 		// Create an instance of the response struct
 		response := ChatUpdateResp{
-			Message: "{Hello: World}",
+			Message: "{Hello:git  World}",
 			Status:  200,
 		}
 
