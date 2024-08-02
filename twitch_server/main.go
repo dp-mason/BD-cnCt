@@ -30,7 +30,7 @@ import (
 func fakeTwitchWorker(chatUpdates chan string) {
 	for {
 		time.Sleep(time.Millisecond * 200)
-		var chatmsg string = "/0 2.5"
+		var chatmsg string = "/15 2.5"
 		fmt.Println("fake twitch worker: ", chatmsg)
 		if chatmsg[0] == '/' {
 			parts := strings.Split((chatmsg[1:]), " ")
