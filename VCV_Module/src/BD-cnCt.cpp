@@ -60,7 +60,7 @@ struct BD_cnCt : Module {
 	}
 
 	void process(const ProcessArgs& args) override {
-		if (args.frame % 800 == 0) {
+		if (args.frame % 40000 == 0) {
 			
 			json_t* reqJ = json_object();
 			// json_object_set_new(reqJ, "edition", json_string(APP_EDITION.c_str()));

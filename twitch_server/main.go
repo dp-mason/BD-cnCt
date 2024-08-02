@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -27,41 +29,61 @@ import (
 
 func fakeTwitchWorker(chatUpdates chan string) {
 	for {
-		time.Sleep(time.Second)
-		chatUpdates <- "foobar"
-		fmt.Println("fake twitch worker: foobar")
+		time.Sleep(time.Millisecond * 200)
+		var chatmsg string = "/0 2.5"
+		fmt.Println("fake twitch worker: ", chatmsg)
+		if chatmsg[0] == '/' {
+			parts := strings.Split((chatmsg[1:]), " ")
+			channel, err := strconv.Atoi(parts[0])
+			if err != nil {
+				continue
+			}
+			if channel < 0 || channel > 15 {
+				// TODO: send error msg back thru twitch chat
+				continue
+			}
+			value, err := strconv.ParseFloat(parts[1], 32)
+			if err != nil {
+				continue
+			}
+			if value < -10.0 || value > 10.0 {
+				// TODO: send error msg back thru twitch chat
+				continue
+			}
+			chatUpdates <- parts[0] + " " + parts[1]
+		}
 	}
-}
-
-type ChatUpdateResp struct {
-	Message string `json:"message"`
-	Status  int    `json:"status"`
 }
 
 func jsonServerWorker(chatUpdates chan string) {
 	http.HandleFunc("/chat-queue", func(respWriter http.ResponseWriter, req *http.Request) {
-		// construct the json string
-		for msg := range chatUpdates {
-			fmt.Println("JSON server:", msg)
+		data := make(map[string]string)
+
+		for {
+			select {
+			case msg := <-chatUpdates:
+				fmt.Println("Flushed message: ", msg)
+				cmdParts := strings.Split(msg, " ")
+				data[cmdParts[0]] = cmdParts[1]
+			default:
+				// No more messages in the channel
+				fmt.Println(data)
+				// Convert the data structure to JSON
+				jsonData, err := json.Marshal(data)
+				if err != nil {
+					http.Error(respWriter, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				// Set the content type to application/json
+				respWriter.Header().Set("Content-Type", "application/json")
+
+				// Write the JSON data to the response
+				respWriter.Write(jsonData)
+				return
+			}
 		}
 
-		// Create an instance of the response struct
-		response := ChatUpdateResp{
-			Message: "{Hello:git  World}",
-			Status:  200,
-		}
-
-		respWriter.Header().Set("Content-Type", "application/json")
-
-		// Encode the response struct to JSON
-		jsonResponse, err := json.Marshal(response)
-		if err != nil {
-			// Handle the error and return an HTTP 500 status code
-			http.Error(respWriter, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		respWriter.Write(jsonResponse)
 	})
 
 	fmt.Println("Server is running at 0.0.0.0:4554")
