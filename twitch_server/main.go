@@ -5,55 +5,89 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
-	"time"
+
+	"github.com/gempir/go-twitch-irc/v4"
+	"github.com/joho/godotenv"
 )
 
-// func twitchWorker(chatUpdates chan string) {
-// 	// or client := twitch.NewAnonymousClient() for an anonymous user (no write capabilities)
-// 	client := twitch.NewClient("yourtwitchusername", "oauth:123123123")
+func twitchWorker(chatUpdates chan string) {
+	// or client := twitch.NewAnonymousClient() for an anonymous user (no write capabilities)
+	user := strings.TrimSpace(os.Getenv("TWITCH_USER"))
+	key := strings.TrimSpace(os.Getenv("TWITCH_OAUTH"))
+	client := twitch.NewClient(user, key)
 
-// 	client.OnClearChatMessage(func(message twitch.ClearChatMessage) {
-// 		fmt.Println(message.Message)
-// 		chatUpdates <- message.Message
-// 	})
+	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+		fmt.Println(message.Message)
+		if message.Message[0] == '!' {
+			parts := strings.Split((message.Message[1:]), " ")
+			if len(parts) < 2 {
+				// TODO: send error msg back thru twitch chat
+				return
+			}
 
-// 	client.Join("dpmason")
-
-// 	err := client.Connect()
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// }
-
-func fakeTwitchWorker(chatUpdates chan string) {
-	for {
-		time.Sleep(time.Millisecond * 200)
-		var chatmsg string = "/15 2.5"
-		fmt.Println("fake twitch worker: ", chatmsg)
-		if chatmsg[0] == '/' {
-			parts := strings.Split((chatmsg[1:]), " ")
 			channel, err := strconv.Atoi(parts[0])
+
 			if err != nil {
-				continue
-			}
-			if channel < 0 || channel > 15 {
 				// TODO: send error msg back thru twitch chat
-				continue
+				return
+			} else if channel < 0 || channel > 15 {
+				// TODO: send error msg back thru twitch chat
+				return
 			}
+
 			value, err := strconv.ParseFloat(parts[1], 32)
+
 			if err != nil {
-				continue
-			}
-			if value < -10.0 || value > 10.0 {
 				// TODO: send error msg back thru twitch chat
-				continue
+				return
+			} else if value < -10.0 || value > 10.0 {
+				// TODO: send error msg back thru twitch chat
+				return
 			}
+
 			chatUpdates <- parts[0] + " " + parts[1]
 		}
+	})
+
+	fmt.Println("Joining", user, "...")
+	client.Join(user)
+
+	err := client.Connect()
+	if err != nil {
+		panic(err)
 	}
 }
+
+// func fakeTwitchWorker(chatUpdates chan string) {
+// 	for {
+// 		time.Sleep(time.Millisecond * 200)
+// 		var chatmsg string = "/15 2.5"
+// 		fmt.Println("fake twitch worker: ", chatmsg)
+// 		if chatmsg[0] == '/' {
+// 			parts := strings.Split((chatmsg[1:]), " ")
+// 			channel, err := strconv.Atoi(parts[0])
+// 			if err != nil {
+// 				continue
+// 			}
+// 			if channel < 0 || channel > 15 {
+// 				// TODO: send error msg back thru twitch chat
+// 				continue
+// 			}
+// 			value, err := strconv.ParseFloat(parts[1], 32)
+// 			if err != nil {
+// 				continue
+// 			}
+// 			if value < -10.0 || value > 10.0 {
+// 				// TODO: send error msg back thru twitch chat
+// 				continue
+// 			}
+// 			chatUpdates <- parts[0] + " " + parts[1]
+// 		}
+// 	}
+// }
 
 func jsonServerWorker(chatUpdates chan string) {
 	http.HandleFunc("/chat-queue", func(respWriter http.ResponseWriter, req *http.Request) {
@@ -91,9 +125,14 @@ func jsonServerWorker(chatUpdates chan string) {
 }
 
 func main() {
+	// loads the twitch user and oauth from .env file
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic(err)
+	}
 	chatUpdates := make(chan string, 16)
-	//go twitchWorker(chatUpdates)
-	go fakeTwitchWorker(chatUpdates)
+	go twitchWorker(chatUpdates)
+	// go fakeTwitchWorker(chatUpdates)
 	go jsonServerWorker(chatUpdates)
 
 	select {}
