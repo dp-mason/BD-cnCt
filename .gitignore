@@ -1,7 +1,8 @@
-/build
-/dist
-/*.so
-/*.dylib
-/*.dll
+/VCV_Module/build/
+/VCV_Module/dist/
+*.so
+*.dylib
+*.dll
 .DS_Store
 .vscode
+.env

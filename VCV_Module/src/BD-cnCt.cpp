@@ -1,6 +1,28 @@
 #include "plugin.hpp"
 
 
+char *strip_quotes(const char *str) {
+    size_t len = strlen(str);
+
+    // Check for empty string
+    if (len < 2) {
+        return NULL; // Return NULL if the string is too short
+    }
+
+    // Check if the first and last characters are quotes
+    if (str[0] == '"' && str[len - 1] == '"') {
+        // Allocate memory for new string (length - 2 for the quotes + 1 for null terminator)
+        char *result = (char *)malloc(len - 1);
+        if (result) {
+            strncpy(result, str + 1, len - 2); // Copy without quotes
+            result[len - 2] = '\0'; // Null-terminate the new string
+        }
+        return result;
+    }
+
+    return NULL; // Return NULL if the string does not start and end with quotes
+}
+
 struct BD_cnCt : Module {
 	enum ParamId {
 		KNOB_ZERO_PARAM,
@@ -60,19 +82,24 @@ struct BD_cnCt : Module {
 	}
 
 	void process(const ProcessArgs& args) override {
-		if (args.frame % 3000 == 0) {
+		// the values can only really update once 
+		if (args.frame % int(args.sampleRate) == 0) {
 			
 			json_t* reqJ = json_object();
 			// json_object_set_new(reqJ, "edition", json_string(APP_EDITION.c_str()));
-			json_t* resJ = network::requestJson(network::METHOD_GET, "0.0.0.0:4554/queue.json", reqJ);
+			json_t* resJ = network::requestJson(network::METHOD_GET, "0.0.0.0:4554/chat-queue", reqJ);
 			const char *key;
 			json_t *value;
+			DEBUG("PRINTING ALL JSON FIELDS BELOW");
 			json_object_foreach(resJ, key, value) {
  				/* block of code that uses key and value */
-				char* val = json_dumps(value, JSON_ENCODE_ANY);
-				DEBUG(key);
-				DEBUG(val);
-				free(val);
+				const char* val = json_dumps(value, JSON_ENCODE_ANY);
+				DEBUG("%d", atoi(key));
+
+				char *value = strip_quotes(val);
+				DEBUG("value %s turns into %f", value, atof(value));
+				outputs[atoi(key)].setVoltage(atof(value));
+				free(value);
 			}
 			json_decref(reqJ);
 			json_decref(resJ);
