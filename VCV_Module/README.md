@@ -1,5 +1,3 @@
-Considering one of 2 routes (leaning toward former):
-- use networking api built in to rack to GET JSON updates from a locally running server
-- use sockets and parse the socket msgs into commands
-
-- what is a good way to translate voltage commands like "/bpm -0.1" to values of output values on output ports 1-16 that can be used for multuple patches that will have different params to control 
+- add offset and gain controls to every output to standardize the way that users send commands no matter which output they are sending a value to
+- add an option to set an output as unipolar? or should the user commands only ever be values from 0.0 to 10.0?
+- when there is an improper input the twitch server could send back a message to the twitch chat showing proper usage guide for this patch. in fact it would be kinda tricky but there may be reasons to have the vcv module POST a usage guide specific to it's state back to the twitch server which then forwards it back to real twitch chat
