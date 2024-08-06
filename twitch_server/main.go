@@ -19,6 +19,8 @@ func twitchWorker(chatUpdates chan string) {
 	key := strings.TrimSpace(os.Getenv("TWITCH_OAUTH"))
 	client := twitch.NewClient(user, key)
 
+	outputChannel := make(chan string)
+
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		fmt.Println(message.Message)
 		if message.Message[0] == '!' {
@@ -43,8 +45,9 @@ func twitchWorker(chatUpdates chan string) {
 			if err != nil {
 				// TODO: send error msg back thru twitch chat
 				return
-			} else if value < -10.0 || value > 10.0 {
-				// TODO: send error msg back thru twitch chat
+			} else if value < 0.0 || value > 10.0 {
+				// TODO: TEST THIS, theres no way it works
+				client.Say(outputChannel, "yo")
 				return
 			}
 
