@@ -118,7 +118,7 @@ struct BD_cnCtWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(15.24, 46.063)), module, BD_cnCt::KNOB_ZERO_PARAM));
+		addParam(createParamCentered<Trimpot>(mm2px(Vec(15.24, 46.063)), module, BD_cnCt::KNOB_ZERO_PARAM));
 		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(24.388, 46.063)), module, BD_cnCt::KNOB_ONE_PARAM));
 		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(33.535, 46.063)), module, BD_cnCt::KNOB_TWO_PARAM));
 		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(42.683, 46.063)), module, BD_cnCt::KNOB_THREE_PARAM));
