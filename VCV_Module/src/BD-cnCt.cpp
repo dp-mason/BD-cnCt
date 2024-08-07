@@ -59,10 +59,17 @@ struct BD_cnCt : Module {
 
 	BD_cnCt() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-		configParam(KNOB_ZERO_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(KNOB_ONE_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(KNOB_TWO_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(KNOB_THREE_PARAM, 0.f, 1.f, 0.f, "");
+		
+		// knobs to set the port to query on localhost
+		configParam(KNOB_ZERO_PARAM, 1.f, 9.f, 5.f, "");
+		paramQuantities[KNOB_ZERO_PARAM]->snapEnabled = true;
+		configParam(KNOB_ONE_PARAM, 0.f, 9.f, 3.f, "");
+		paramQuantities[KNOB_ONE_PARAM]->snapEnabled = true;
+		configParam(KNOB_TWO_PARAM, 0.f, 9.f, 0.f, "");
+		paramQuantities[KNOB_TWO_PARAM]->snapEnabled = true;
+		configParam(KNOB_THREE_PARAM, 0.f, 9.f, 9.f, "");
+		paramQuantities[KNOB_THREE_PARAM]->snapEnabled = true;
+		
 		configOutput(ZERO_OUTPUT, "");
 		configOutput(ONE_OUTPUT, "");
 		configOutput(TWO_OUTPUT, "");
