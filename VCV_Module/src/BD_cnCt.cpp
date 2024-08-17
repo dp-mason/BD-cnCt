@@ -26,23 +26,6 @@ char *strip_quotes(const char *str) {
 
 struct BD_cnCt : Module {
 	enum ParamId {
-		// Test Knobs
-		TEST_KNOB_ZERO_PARAM,
-		TEST_KNOB_ONE_PARAM,
-		TEST_KNOB_TWO_PARAM,
-		TEST_KNOB_THREE_PARAM,
-		TEST_KNOB_FOUR_PARAM,
-		TEST_KNOB_FIVE_PARAM,
-		TEST_KNOB_SIX_PARAM,
-		TEST_KNOB_SEVEN_PARAM,
-		TEST_KNOB_EIGHT_PARAM,
-		TEST_KNOB_NINE_PARAM,
-		TEST_KNOB_TEN_PARAM,
-		TEST_KNOB_ELEVEN_PARAM,
-		TEST_KNOB_TWELVE_PARAM,
-		TEST_KNOB_THIRTEEN_PARAM,
-		TEST_KNOB_FOURTEEN_PARAM,
-		TEST_KNOB_FIFTEEN_PARAM,
 		// Offset Knobs
 		OFFSET_KNOB_ZERO_PARAM,
 		OFFSET_KNOB_ONE_PARAM,
@@ -77,9 +60,26 @@ struct BD_cnCt : Module {
 		MULT_KNOB_THIRTEEN_PARAM,
 		MULT_KNOB_FOURTEEN_PARAM,
 		MULT_KNOB_FIFTEEN_PARAM,
+		// Test Knobs
+		TEST_KNOB_ZERO_PARAM,
+		TEST_KNOB_ONE_PARAM,
+		TEST_KNOB_TWO_PARAM,
+		TEST_KNOB_THREE_PARAM,
+		TEST_KNOB_FOUR_PARAM,
+		TEST_KNOB_FIVE_PARAM,
+		TEST_KNOB_SIX_PARAM,
+		TEST_KNOB_SEVEN_PARAM,
+		TEST_KNOB_EIGHT_PARAM,
+		TEST_KNOB_NINE_PARAM,
+		TEST_KNOB_TEN_PARAM,
+		TEST_KNOB_ELEVEN_PARAM,
+		TEST_KNOB_TWELVE_PARAM,
+		TEST_KNOB_THIRTEEN_PARAM,
+		TEST_KNOB_FOURTEEN_PARAM,
+		TEST_KNOB_FIFTEEN_PARAM,
 		// Local Port Knobs
-		PORT_KNOB_ONE_PARAM,
 		PORT_KNOB_ZERO_PARAM,
+		PORT_KNOB_ONE_PARAM,
 		PORT_KNOB_TWO_PARAM,
 		PORT_KNOB_THREE_PARAM,
 		// etc
@@ -87,7 +87,7 @@ struct BD_cnCt : Module {
 		PARAMS_LEN
 	};
 	enum InputId {
-		CLOCK_INPUT_INPUT,
+		CLOCK_INPUT,
 		INPUTS_LEN
 	};
 	enum OutputId {
@@ -107,6 +107,7 @@ struct BD_cnCt : Module {
 		THIRTEEN_OUTPUT,
 		FOURTEEN_OUTPUT,
 		FIFTEEN_OUTPUT,
+		NEW_USER_OUTPUT,
 		OUTPUTS_LEN
 	};
 	enum LightId {
@@ -114,31 +115,34 @@ struct BD_cnCt : Module {
 		LIGHTS_LEN
 	};
 
+	std::vector<float> user_vals = std::vector<float>(16, 0.f);
+	float clock_prev = 0.f;
+
 	BD_cnCt() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-		configParam(TEST_ENABLE_BUTTON_PARAM, 0.f, 1.f, 0.f, "");
+		configSwitch(TEST_ENABLE_BUTTON_PARAM, 0.f, 1.f, 1.f, "");
 
 		configParam(PORT_KNOB_ZERO_PARAM,  1.f, 9.f, 5.f, "");
 		configParam(PORT_KNOB_ONE_PARAM,   0.f, 9.f, 3.f, "");
 		configParam(PORT_KNOB_TWO_PARAM,   0.f, 9.f, 0.f, "");
 		configParam(PORT_KNOB_THREE_PARAM, 0.f, 9.f, 9.f, "");
 
-		configParam(TEST_KNOB_ONE_PARAM,      0.f, 10.f, 0.f, "Test 0" );
-		configParam(TEST_KNOB_THREE_PARAM,    0.f, 10.f, 0.f, "Test 1" );
+		configParam(TEST_KNOB_ZERO_PARAM,     0.f, 10.f, 0.f, "Test 0" );
+		configParam(TEST_KNOB_ONE_PARAM,      0.f, 10.f, 0.f, "Test 1" );
 		configParam(TEST_KNOB_TWO_PARAM,      0.f, 10.f, 0.f, "Test 2" );
-		configParam(TEST_KNOB_ZERO_PARAM,     0.f, 10.f, 0.f, "Test 3" );
-		configParam(TEST_KNOB_FIVE_PARAM,     0.f, 10.f, 0.f, "Test 4" );
-		configParam(TEST_KNOB_SEVEN_PARAM,    0.f, 10.f, 0.f, "Test 5" );
-		configParam(TEST_KNOB_FOUR_PARAM,     0.f, 10.f, 0.f, "Test 6" );
-		configParam(TEST_KNOB_SIX_PARAM,      0.f, 10.f, 0.f, "Test 7" );
-		configParam(TEST_KNOB_NINE_PARAM,     0.f, 10.f, 0.f, "Test 8" );
-		configParam(TEST_KNOB_ELEVEN_PARAM,   0.f, 10.f, 0.f, "Test 9" );
+		configParam(TEST_KNOB_THREE_PARAM,    0.f, 10.f, 0.f, "Test 3" );
+		configParam(TEST_KNOB_FOUR_PARAM,     0.f, 10.f, 0.f, "Test 4" );
+		configParam(TEST_KNOB_FIVE_PARAM,     0.f, 10.f, 0.f, "Test 5" );
+		configParam(TEST_KNOB_SIX_PARAM,      0.f, 10.f, 0.f, "Test 6" );
+		configParam(TEST_KNOB_SEVEN_PARAM,    0.f, 10.f, 0.f, "Test 7" );
+		configParam(TEST_KNOB_EIGHT_PARAM,    0.f, 10.f, 0.f, "Test 8" );
+		configParam(TEST_KNOB_NINE_PARAM,     0.f, 10.f, 0.f, "Test 9" );
 		configParam(TEST_KNOB_TEN_PARAM,      0.f, 10.f, 0.f, "Test 10");
-		configParam(TEST_KNOB_EIGHT_PARAM,    0.f, 10.f, 0.f, "Test 11");
-		configParam(TEST_KNOB_THIRTEEN_PARAM, 0.f, 10.f, 0.f, "Test 12");
-		configParam(TEST_KNOB_FIFTEEN_PARAM,  0.f, 10.f, 0.f, "Test 13");
+		configParam(TEST_KNOB_ELEVEN_PARAM,   0.f, 10.f, 0.f, "Test 11");
+		configParam(TEST_KNOB_TWELVE_PARAM,   0.f, 10.f, 0.f, "Test 12");
+		configParam(TEST_KNOB_THIRTEEN_PARAM, 0.f, 10.f, 0.f, "Test 13");
 		configParam(TEST_KNOB_FOURTEEN_PARAM, 0.f, 10.f, 0.f, "Test 14");
-		configParam(TEST_KNOB_TWELVE_PARAM,   0.f, 10.f, 0.f, "Test 15");
+		configParam(TEST_KNOB_FIFTEEN_PARAM,  0.f, 10.f, 0.f, "Test 15");
 
 		configParam(OFFSET_KNOB_ZERO_PARAM,     -10.f, 10.f, 0.f, "Offset 0" );
 		configParam(OFFSET_KNOB_ONE_PARAM,      -10.f, 10.f, 0.f, "Offset 1" );
@@ -191,30 +195,72 @@ struct BD_cnCt : Module {
 		configOutput(FOURTEEN_OUTPUT, "Output 14");
 		configOutput(FIFTEEN_OUTPUT,  "Output 15");
 
-		configInput(CLOCK_INPUT_INPUT, "");
+		configInput(CLOCK_INPUT, "");
 	}
 
 	void process(const ProcessArgs& args) override {
-		if (args.frame % int(args.sampleRate) == 0) {
+		
+		bool test_enabled = params[TEST_ENABLE_BUTTON_PARAM].getValue() > 0.f;
+
+		if (
+			!test_enabled &&
+			((inputs[CLOCK_INPUT].isConnected() && inputs[CLOCK_INPUT].getVoltage() > 0.1 && clock_prev < 0.1) || 
+			 (!inputs[CLOCK_INPUT].isConnected() && args.frame % int64_t(args.sampleRate) == 0))
+		) {
 			json_t* reqJ = json_object();
 			// json_object_set_new(reqJ, "edition", json_string(APP_EDITION.c_str()));
-			json_t* resJ = network::requestJson(network::METHOD_GET, "0.0.0.0:4554/chat-queue", reqJ);
+			std::string port  = std::to_string(
+				int(params[PORT_KNOB_ZERO_PARAM].getValue() * 1000) +
+				int(params[PORT_KNOB_ONE_PARAM].getValue() * 100)   +
+				int(params[PORT_KNOB_TWO_PARAM].getValue() * 10)    +
+				int(params[PORT_KNOB_THREE_PARAM].getValue())
+			);
+			DEBUG("PORT: %s", port.c_str());
+			json_t* resJ = network::requestJson(network::METHOD_GET, "0.0.0.0:"+port+"/chat-queue", reqJ);
 			const char *key;
 			json_t *value;
 			DEBUG("PRINTING ALL JSON FIELDS BELOW");
 			json_object_foreach(resJ, key, value) {
- 				/* block of code that uses key and value */
+				/* block of code that uses key and value */
 				const char* val = json_dumps(value, JSON_ENCODE_ANY);
 				DEBUG("%d", atoi(key));
 
 				char *value = strip_quotes(val);
 				DEBUG("value %s turns into %f", value, atof(value));
-				outputs[atoi(key)].setVoltage(atof(value));
+				
+				user_vals[atoi(key)] = atof(value);
+				// outputs[atoi(key)].setVoltage(atof(value));
+				
 				free(value);
 			}
 			json_decref(reqJ);
 			json_decref(resJ);
 		}
+		else {
+			// set the user values as the values of the test knobs
+			for (size_t i = 0; i < user_vals.size(); i++)
+			{
+				user_vals[i] = params[(16*2) + i].getValue();
+			}
+		}
+
+		// apply offset and mult to each input before outputting value
+		for (size_t i = 0; i < user_vals.size(); i++)
+		{
+			outputs[i].setVoltage( 
+				clamp( (user_vals[i] + params[i].getValue()) * params[i+16].getValue(), -10.0, 10.0 )
+			);
+		}
+		if (args.frame % 200000 == 0) {
+			DEBUG("USER_VALS, test mode:%f", params[TEST_ENABLE_BUTTON_PARAM].getValue());
+			for (size_t i = 0; i < user_vals.size(); i++)
+			{
+				DEBUG("%f", user_vals[i]);
+			} 
+		}
+		
+
+		clock_prev =  inputs[CLOCK_INPUT].getVoltage();
 	}
 };
 
@@ -257,7 +303,6 @@ struct BD_cnCtWidget : ModuleWidget {
 		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(114.808, 114.321)), module, BD_cnCt::TEST_KNOB_TWELVE_PARAM));
 		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(133.81, 106.809)),  module, BD_cnCt::TEST_KNOB_THIRTEEN_PARAM));
 		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(151.828, 116.827)), module, BD_cnCt::TEST_KNOB_FOURTEEN_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(171.411, 106.658)), module, BD_cnCt::TEST_KNOB_FIFTEEN_PARAM));
 
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(19.893, 43.597)),  module, BD_cnCt::OFFSET_KNOB_ZERO_PARAM));
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(51.966, 45.073)),  module, BD_cnCt::OFFSET_KNOB_ONE_PARAM));
@@ -275,6 +320,7 @@ struct BD_cnCtWidget : ModuleWidget {
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(54.208, 111.029)), module, BD_cnCt::OFFSET_KNOB_THIRTEEN_PARAM));
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(72.333, 108.939)), module, BD_cnCt::OFFSET_KNOB_FOURTEEN_PARAM));
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(98.52, 107.819)),  module, BD_cnCt::OFFSET_KNOB_FIFTEEN_PARAM));
+		
 
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(27.505, 52.949)),  module, BD_cnCt::MULT_KNOB_ZERO_PARAM));
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(47.556, 53.128)),  module, BD_cnCt::MULT_KNOB_ONE_PARAM));
@@ -293,7 +339,7 @@ struct BD_cnCtWidget : ModuleWidget {
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(77.272, 115.789)), module, BD_cnCt::MULT_KNOB_FOURTEEN_PARAM));
 		addParam(createParamCentered<Trimpot>(mm2px(Vec(94.364, 114.865)), module, BD_cnCt::MULT_KNOB_FIFTEEN_PARAM));
 
-		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(81.99, 13.75)), module, BD_cnCt::CLOCK_INPUT_INPUT));
+		addInput(createInputCentered<PJ301MPort>(mm2px(Vec(81.99, 13.75)), module, BD_cnCt::CLOCK_INPUT));
 
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(13.156, 52.627)),  module, BD_cnCt::ZERO_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(40.37, 46.593)),   module, BD_cnCt::ONE_OUTPUT));
@@ -311,6 +357,8 @@ struct BD_cnCtWidget : ModuleWidget {
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(44.476, 112.598)), module, BD_cnCt::THIRTEEN_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(66.927, 116.257)), module, BD_cnCt::FOURTEEN_OUTPUT));
 		addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(88.623, 108.348)), module, BD_cnCt::FIFTEEN_OUTPUT));
+		
+		addOutput(createOutputCentered<CL1362Port>(mm2px(Vec(171.411, 106.658)), module, BD_cnCt::NEW_USER_OUTPUT));
 	}
 };
 
