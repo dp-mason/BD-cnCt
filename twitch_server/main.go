@@ -60,6 +60,10 @@ func twitchWorker(chatUpdates chan string) {
 		}
 	})
 
+	client.OnUserJoinMessage(func(message twitch.UserJoinMessage) {
+		client.Say(message.Channel, "WELCOME: "+message.User)
+	})
+
 	fmt.Println("Joining", user, "...")
 	client.Join(user)
 
@@ -98,7 +102,7 @@ func twitchWorker(chatUpdates chan string) {
 // }
 
 func jsonServerWorker(chatUpdates chan string) {
-	http.HandleFunc("/chat-queue", func(respWriter http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/twitch-queue", func(respWriter http.ResponseWriter, req *http.Request) {
 		data := make(map[string]string)
 
 		// loop until all messages have been flushed, then respond with the json data
@@ -128,8 +132,8 @@ func jsonServerWorker(chatUpdates chan string) {
 
 	})
 
-	fmt.Println("Server is running at 0.0.0.0:4554")
-	log.Fatal(http.ListenAndServe("0.0.0.0:4554", nil))
+	fmt.Println("Server is running at 0.0.0.0:5309")
+	log.Fatal(http.ListenAndServe("0.0.0.0:5309", nil))
 }
 
 func main() {

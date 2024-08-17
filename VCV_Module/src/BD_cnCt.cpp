@@ -202,21 +202,20 @@ struct BD_cnCt : Module {
 		
 		bool test_enabled = params[TEST_ENABLE_BUTTON_PARAM].getValue() > 0.f;
 
+		if(test_enabled)
 		if (
 			!test_enabled &&
 			((inputs[CLOCK_INPUT].isConnected() && inputs[CLOCK_INPUT].getVoltage() > 0.1 && clock_prev < 0.1) || 
 			 (!inputs[CLOCK_INPUT].isConnected() && args.frame % int64_t(args.sampleRate) == 0))
 		) {
-			json_t* reqJ = json_object();
-			// json_object_set_new(reqJ, "edition", json_string(APP_EDITION.c_str()));
 			std::string port  = std::to_string(
 				int(params[PORT_KNOB_ZERO_PARAM].getValue() * 1000) +
 				int(params[PORT_KNOB_ONE_PARAM].getValue() * 100)   +
 				int(params[PORT_KNOB_TWO_PARAM].getValue() * 10)    +
 				int(params[PORT_KNOB_THREE_PARAM].getValue())
 			);
-			DEBUG("PORT: %s", port.c_str());
-			json_t* resJ = network::requestJson(network::METHOD_GET, "0.0.0.0:"+port+"/chat-queue", reqJ);
+			json_t* reqJ = json_object();
+			json_t* resJ = network::requestJson(network::METHOD_GET, "0.0.0.0:"+port+"/twitch-queue", reqJ);
 			const char *key;
 			json_t *value;
 			DEBUG("PRINTING ALL JSON FIELDS BELOW");
@@ -229,7 +228,6 @@ struct BD_cnCt : Module {
 				DEBUG("value %s turns into %f", value, atof(value));
 				
 				user_vals[atoi(key)] = atof(value);
-				// outputs[atoi(key)].setVoltage(atof(value));
 				
 				free(value);
 			}
@@ -237,6 +235,7 @@ struct BD_cnCt : Module {
 			json_decref(resJ);
 		}
 		else {
+			lights[TEST_LIGHT].setBrightness(0.f)
 			// set the user values as the values of the test knobs
 			for (size_t i = 0; i < user_vals.size(); i++)
 			{
@@ -251,14 +250,6 @@ struct BD_cnCt : Module {
 				clamp( (user_vals[i] + params[i].getValue()) * params[i+16].getValue(), -10.0, 10.0 )
 			);
 		}
-		if (args.frame % 200000 == 0) {
-			DEBUG("USER_VALS, test mode:%f", params[TEST_ENABLE_BUTTON_PARAM].getValue());
-			for (size_t i = 0; i < user_vals.size(); i++)
-			{
-				DEBUG("%f", user_vals[i]);
-			} 
-		}
-		
 
 		clock_prev =  inputs[CLOCK_INPUT].getVoltage();
 	}
