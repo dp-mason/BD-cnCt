@@ -7,3 +7,5 @@
 .vscode
 .env
 *.blend1
+node_modules/
+package*.json

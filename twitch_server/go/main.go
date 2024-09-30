@@ -138,7 +138,7 @@ func jsonServerWorker(chatUpdates chan string) {
 
 func main() {
 	// loads the twitch user and oauth from .env file
-	err := godotenv.Load(".env")
+	err := godotenv.Load("../.env")
 	if err != nil {
 		panic(err)
 	}
