@@ -83,7 +83,7 @@ struct BD_cnCt : Module {
 		PORT_KNOB_TWO_PARAM,
 		PORT_KNOB_THREE_PARAM,
 		// etc
-		TEST_ENABLE_BUTTON_PARAM,
+		// TEST_ENABLE_BUTTON_PARAM,
 		PARAMS_LEN
 	};
 	enum InputId {
@@ -110,17 +110,13 @@ struct BD_cnCt : Module {
 		NEW_USER_OUTPUT,
 		OUTPUTS_LEN
 	};
-	enum LightId {
-		TEST_LIGHT,
-		LIGHTS_LEN
-	};
 
 	//std::vector<float> user_vals = std::vector<float>(16, 0.f);
 	float clock_prev = 0.f;
 
 	BD_cnCt() {
-		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-		configSwitch(TEST_ENABLE_BUTTON_PARAM, 0.f, 1.f, 1.f, "");
+		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN);
+		// configSwitch(TEST_ENABLE_BUTTON_PARAM, 0.f, 1.f, 1.f, "");
 
 		configParam(PORT_KNOB_ZERO_PARAM,  1.f, 9.f, 5.f, "");
 		configParam(PORT_KNOB_ONE_PARAM,   0.f, 9.f, 3.f, "");
@@ -217,12 +213,12 @@ struct BD_cnCt : Module {
 		
 		// test mode will allow you to test how user values would effect your patch with the parameter
 		// knobs on the right
-		bool test_enabled = params[TEST_ENABLE_BUTTON_PARAM].getValue() > 0.f;
+		// bool test_enabled = params[TEST_ENABLE_BUTTON_PARAM].getValue() > 0.f;
 
 		// if clock is connected, update when the clock triggers
 		// if the clock is not connected, update once per 2 seconds
 		if (
-			!test_enabled &&
+			// !test_enabled &&
 			((inputs[CLOCK_INPUT].isConnected() && inputs[CLOCK_INPUT].getVoltage() > 0.1 && clock_prev < 0.1) || 
 			 (!inputs[CLOCK_INPUT].isConnected() && args.frame % int64_t(args.sampleRate) * 2 == 0))
 		) {
@@ -255,14 +251,7 @@ struct BD_cnCt : Module {
 		}
 
 		// this doesn't NEED to happen every frame
-		if(args.frame % 128 == 0) {
-			if(test_enabled) {
-				lights[TEST_LIGHT].setBrightness(1.f);
-			}
-			else {
-				lights[TEST_LIGHT].setBrightness(0.f);
-			}	
-			
+		if(args.frame % 256 == 0) {
 			calc_output_with_offset_mult();
 		}
 
@@ -292,7 +281,7 @@ struct BD_cnCtWidget : ModuleWidget {
 		addParam(createParamCentered<RoundBlackSnapKnob>(mm2px(Vec(59.259, 13.75)), module, BD_cnCt::PORT_KNOB_THREE_PARAM));
 
 		// addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(116.678, 31.609)), module, BD_cnCt::TEST_ENABLE_BUTTON_PARAM));
-		addParam(createLightParamCentered<VCVLightLatch<MediumSimpleLight<WhiteLight>>>(mm2px(Vec(116.678, 31.609)), module, BD_cnCt::TEST_ENABLE_BUTTON_PARAM, BD_cnCt::TEST_LIGHT));
+		// addParam(createLightParamCentered<VCVLightLatch<MediumSimpleLight<WhiteLight>>>(mm2px(Vec(116.678, 31.609)), module, BD_cnCt::TEST_ENABLE_BUTTON_PARAM, BD_cnCt::TEST_LIGHT));
 
 		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(117.557, 48.676)),  module, BD_cnCt::KNOB_ZERO_PARAM));
 		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(134.017, 37.179)),  module, BD_cnCt::KNOB_ONE_PARAM));
