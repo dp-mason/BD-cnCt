@@ -47,3 +47,17 @@ struct BGPanel : TransparentWidget {
 	  Widget::draw(args);
 	}
 };
+
+struct TransparentPort : SvgPort {
+    TransparentPort() {
+        // No SVG file is loaded, hence no visual element.
+        setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/transparent.svg")));
+        
+        // Alternatively, if you want no SVG at all, comment the setSvg line.
+    }
+
+    // Optionally, override draw if needed to ensure no drawing occurs
+    void draw(const DrawArgs& args) override {
+        // Do nothing, so it's completely transparent visually
+    }
+};
