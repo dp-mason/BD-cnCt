@@ -17,6 +17,7 @@ func twitchWorker(chatUpdates chan string) {
 	// or client := twitch.NewAnonymousClient() for an anonymous user (no write capabilities)
 	user := strings.TrimSpace(os.Getenv("TWITCH_USER"))
 	key := strings.TrimSpace(os.Getenv("TWITCH_OAUTH"))
+	channel := strings.TrimSpace(os.Getenv("CHANNEL"))
 	client := twitch.NewClient(user, key)
 
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
@@ -64,8 +65,8 @@ func twitchWorker(chatUpdates chan string) {
 		client.Say(message.Channel, "WELCOME: "+message.User)
 	})
 
-	fmt.Println("Joining", user, "...")
-	client.Join(user)
+	fmt.Println("Joining ", channel, "...")
+	client.Join(channel)
 
 	err := client.Connect()
 	if err != nil {
@@ -138,7 +139,7 @@ func jsonServerWorker(chatUpdates chan string) {
 
 func main() {
 	// loads the twitch user and oauth from .env file
-	err := godotenv.Load("../.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		panic(err)
 	}
