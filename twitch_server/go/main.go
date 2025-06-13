@@ -20,13 +20,16 @@ func twitchWorker(chatUpdates chan string) {
 	channel := strings.TrimSpace(os.Getenv("CHANNEL"))
 	client := twitch.NewClient(user, key)
 
+	var instructions string = "Send a message that follows the format ![0 or 1] [0.0-10.0], example: \"!0 5.0\", one or two plugins have inputs 2 and 3"
+	client.Say(channel, instructions)
+
 	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		fmt.Println(message.Message)
 		if message.Message[0] == '!' {
 			parts := strings.Split((message.Message[1:]), " ")
 			if len(parts) < 2 {
 				// TODO: send error msg back thru twitch chat
-				client.Reply(message.Channel, message.ID, "Send a message that follows the format ![0-15] [0.0-10.0]")
+				client.Reply(message.Channel, message.ID, instructions)
 				return
 			}
 
@@ -34,10 +37,10 @@ func twitchWorker(chatUpdates chan string) {
 
 			if err != nil {
 				client.Reply(message.Channel, message.ID, "There was an issue parsing the channel of "+
-					"your command, please enter an integer 0-15")
+					"your command, please enter an integer 0-2")
 				return
-			} else if channel < 0 || channel > 15 { // TODO: consolidate magic number
-				client.Reply(message.Channel, message.ID, "Please enter a channel 0-15")
+			} else if channel < 0 || channel > 4 { // TODO: consolidate magic number
+				client.Reply(message.Channel, message.ID, "Please enter a channel 0-2")
 				return
 			}
 
@@ -56,7 +59,7 @@ func twitchWorker(chatUpdates chan string) {
 			if len(chatUpdates) == 16 {
 				client.Reply(message.Channel, message.ID, "The command buffer is full, please wait for it to empty")
 			}
-			client.Reply(message.Channel, message.ID, "Your command will be apllied shortly")
+			client.Reply(message.Channel, message.ID, "Your command will be applied shortly")
 			chatUpdates <- parts[0] + " " + parts[1]
 		}
 	})
@@ -130,7 +133,6 @@ func jsonServerWorker(chatUpdates chan string) {
 				return
 			}
 		}
-
 	})
 
 	fmt.Println("Server is running at 0.0.0.0:5309")
